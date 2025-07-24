@@ -1,6 +1,9 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import AuthLayout from './components/AuthLayout/AuthLayout';
-import RegisterForm from './components/RegisterForm/RegisterForm'; // Importa o RegisterForm
+import LoginForm from './components/LoginForm/LoginForm';
+import RegisterForm from './components/RegisterForm/RegisterForm';
+import { AuthProvider } from './components/context/AuthContext'; 
 import { createGlobalStyle } from 'styled-components';
 
 const GlobalStyle = createGlobalStyle`
@@ -21,9 +24,17 @@ function App() {
   return (
     <>
       <GlobalStyle />
-      <AuthLayout>
-        <RegisterForm /> {/* Renderiza o RegisterForm aqui */}
-      </AuthLayout>
+      <Router>
+        <AuthProvider> 
+          <AuthLayout>
+            <Routes>
+              <Route path="/login" element={<LoginForm />} />
+              <Route path="/register" element={<RegisterForm />} />
+              <Route path="*" element={<LoginForm />} />
+            </Routes>
+          </AuthLayout>
+        </AuthProvider>
+      </Router>
     </>
   );
 }

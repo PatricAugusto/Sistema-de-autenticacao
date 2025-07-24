@@ -1,12 +1,15 @@
 import React from 'react';
-import { Container, ContentWrapper } from './AuthLayout.styles';
+import { Container, FormSection, ContentWrapper, ImageSection } from './AuthLayout.styles'; 
 
 const AuthLayout = ({ children }) => {
   return (
     <Container>
-      <ContentWrapper>
-        {children}
-      </ContentWrapper>
+      <FormSection> 
+        <ContentWrapper>
+          {children}
+        </ContentWrapper>
+      </FormSection>
+      <ImageSection /> 
     </Container>
   );
 };

@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 export const FormContainer = styled.form`
   display: flex;
@@ -22,7 +23,7 @@ export const FormGroup = styled.div`
 
 export const Label = styled.label`
   font-size: 0.9em;
-  color: #555555;
+  color: #333333;
   margin-bottom: 8px;
   font-weight: 500;
 `;
@@ -32,7 +33,7 @@ export const Input = styled.input`
   border: 1px solid ${props => props.error ? '#dc3545' : '#cccccc'}; /* Borda vermelha se houver erro */
   border-radius: 6px;
   font-size: 1em;
-  color: #333333;
+  color: #aaaaaa;
   transition: border-color 0.3s ease;
 
   &:focus {
@@ -68,7 +69,7 @@ export const Button = styled.button`
   }
 `;
 
-export const LinkButton = styled.a`
+export const StyledLinkButton = styled(Link)` /* MUDANÇA AQUI: styled(Link) */
   color: #007bff;
   font-size: 0.9em;
   text-decoration: none;
@@ -81,14 +82,13 @@ export const LinkButton = styled.a`
   }
 `;
 
-export const ForgotPasswordLink = styled(LinkButton)`
+export const ForgotPasswordLink = styled(StyledLinkButton)` /* MUDANÇA AQUI: reutiliza StyledLinkButton */
   margin-top: -10px;
   text-align: right;
 `;
 
-// Novo componente de erro
 export const ErrorMessage = styled.p`
-  color: #dc3545; /* Vermelho vibrante para mensagens de erro */
+  color: #dc3545;
   font-size: 0.85em;
   margin-top: 5px;
   text-align: left;

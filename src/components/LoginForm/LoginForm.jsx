@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Importa useNavigate
+import { useAuth } from '../context/AuthContext'; // Importa useAuth
 import {
   FormContainer,
   FormTitle,
@@ -6,16 +8,19 @@ import {
   Label,
   Input,
   Button,
-  LinkButton,
+  StyledLinkButton,
   ForgotPasswordLink,
-  ErrorMessage // Importamos o novo componente de erro
+  ErrorMessage
 } from './LoginForm.styles';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [emailError, setEmailError] = useState(''); // Novo estado para erro do e-mail
-  const [passwordError, setPasswordError] = useState(''); // Novo estado para erro da senha
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+
+  const { login, isLoading, authError } = useAuth(); // Usa o hook useAuth para obter as funções e estados
+  const navigate = useNavigate(); // Hook para navegação programática
 
   const validateForm = () => {
     let isValid = true;
@@ -45,14 +50,19 @@ const LoginForm = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Tornar handleSubmit assíncrono
     e.preventDefault();
-    if (validateForm()) { // Chama a validação antes de prosseguir
-      console.log('Login attempt:', { email, password });
-      alert('Login validado e dados enviados! Verifique o console.');
-      // Aqui no futuro teremos a lógica de autenticação real (chamada de API)
+    if (validateForm()) {
+      const success = await login(email, password); // Chama a função de login do contexto
+      if (success) {
+        alert('Login bem-sucedido!');
+        navigate('/dashboard'); // Redireciona para uma rota "logada" (criaremos em breve)
+      } else {
+        // Erro será exibido pelo authError vindo do contexto
+        console.error('Falha no login:', authError);
+      }
     } else {
-      console.log('Validação falhou. Corrija os erros.');
+      console.log('Validação local falhou.');
     }
   };
 
@@ -69,11 +79,12 @@ const LoginForm = () => {
           value={email}
           onChange={(e) => {
             setEmail(e.target.value);
-            setEmailError(''); // Limpa o erro ao digitar novamente
+            setEmailError('');
           }}
+          error={!!emailError}
           required
         />
-        {emailError && <ErrorMessage>{emailError}</ErrorMessage>} {/* Exibe o erro se existir */}
+        {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
       </FormGroup>
 
       <FormGroup>
@@ -85,18 +96,24 @@ const LoginForm = () => {
           value={password}
           onChange={(e) => {
             setPassword(e.target.value);
-            setPasswordError(''); // Limpa o erro ao digitar novamente
+            setPasswordError('');
           }}
+          error={!!passwordError}
           required
         />
-        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>} {/* Exibe o erro se existir */}
+        {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
       </FormGroup>
 
-      <ForgotPasswordLink href="#">Esqueceu a senha?</ForgotPasswordLink>
+      {/* Exibe o erro geral de autenticação se houver */}
+      {authError && <ErrorMessage>{authError}</ErrorMessage>}
 
-      <Button type="submit">Entrar</Button>
+      <ForgotPasswordLink to="#">Esqueceu a senha?</ForgotPasswordLink>
 
-      <LinkButton href="#">Não tem uma conta? Crie uma!</LinkButton>
+      <Button type="submit" disabled={isLoading}> {/* Desabilita o botão enquanto carrega */}
+        {isLoading ? 'Entrando...' : 'Entrar'}
+      </Button>
+
+      <StyledLinkButton to="/register">Não tem uma conta? Crie uma!</StyledLinkButton>
     </FormContainer>
   );
 };

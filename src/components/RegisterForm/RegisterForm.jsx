@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import { useAuth } from '../context/AuthContext';
 import {
   FormContainer,
   FormTitle,
@@ -6,7 +8,7 @@ import {
   Label,
   Input,
   Button,
-  LinkButton,
+  StyledLinkButton,
   ErrorMessage
 } from './RegisterForm.styles';
 
@@ -21,9 +23,11 @@ const RegisterForm = () => {
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
+  const { register, isLoading, authError } = useAuth(); // Usa o hook useAuth
+  const navigate = useNavigate(); // Hook para navegação programática
+
   const validateForm = () => {
     let isValid = true;
-
     // Validação de Nome
     if (!name.trim()) { // .trim() remove espaços em branco do início/fim
       setNameError('O nome é obrigatório.');
@@ -68,14 +72,19 @@ const RegisterForm = () => {
     return isValid;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => { // Tornar handleSubmit assíncrono
     e.preventDefault();
     if (validateForm()) {
-      console.log('Registro attempt:', { name, email, password });
-      alert('Registro validado e dados enviados! Verifique o console.');
-      // Futuramente: chamar uma API de registro
+      const success = await register(name, email, password); // Chama a função de registro do contexto
+      if (success) {
+        alert('Registro bem-sucedido! Redirecionando para login...');
+        navigate('/login'); // Redireciona para a tela de login após o registro
+      } else {
+        // Erro será exibido pelo authError vindo do contexto
+        console.error('Falha no registro:', authError);
+      }
     } else {
-      console.log('Validação de registro falhou. Corrija os erros.');
+      console.log('Validação local falhou.');
     }
   };
 
@@ -94,7 +103,7 @@ const RegisterForm = () => {
             setName(e.target.value);
             setNameError('');
           }}
-          error={!!nameError} // Passa a prop error se houver erro
+          error={!!nameError}
           required
         />
         {nameError && <ErrorMessage>{nameError}</ErrorMessage>}
@@ -111,7 +120,7 @@ const RegisterForm = () => {
             setEmail(e.target.value);
             setEmailError('');
           }}
-          error={!!emailError} // Passa a prop error se houver erro
+          error={!!emailError}
           required
         />
         {emailError && <ErrorMessage>{emailError}</ErrorMessage>}
@@ -128,7 +137,7 @@ const RegisterForm = () => {
             setPassword(e.target.value);
             setPasswordError('');
           }}
-          error={!!passwordError} // Passa a prop error se houver erro
+          error={!!passwordError}
           required
         />
         {passwordError && <ErrorMessage>{passwordError}</ErrorMessage>}
@@ -145,16 +154,20 @@ const RegisterForm = () => {
             setConfirmPassword(e.target.value);
             setConfirmPasswordError('');
           }}
-          error={!!confirmPasswordError} // Passa a prop error se houver erro
+          error={!!confirmPasswordError}
           required
         />
         {confirmPasswordError && <ErrorMessage>{confirmPasswordError}</ErrorMessage>}
       </FormGroup>
 
-      <Button type="submit">Registrar</Button>
+      {/* Exibe o erro geral de autenticação se houver */}
+      {authError && <ErrorMessage>{authError}</ErrorMessage>}
 
-      {/* Exemplo de botão para ir para o login */}
-      <LinkButton href="#">Já tem uma conta? Faça login!</LinkButton>
+      <Button type="submit" disabled={isLoading}> {/* Desabilita o botão enquanto carrega */}
+        {isLoading ? 'Registrando...' : 'Registrar'}
+      </Button>
+
+      <StyledLinkButton to="/login">Já tem uma conta? Faça login!</StyledLinkButton>
     </FormContainer>
   );
 };
